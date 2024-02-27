@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <title>Globo Events</title>
+
+    <style>
+        #events-container div{
+            padding: 10px;
+            background-color: rgb(229, 255, 255);
+            border-radius: 0.2em;
+            margin-bottom: 1em;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1 class="is-size-1">Globo Events</h1>
+
+        <div class="section hero is-link">
+            <div class="columns">
+                <div class="column is-4">
+                    <div class="field">
+                        <label class="label has-text-white">Enter City</label>
+                        <div class="control">
+                          <input id="city" class="input" type="text" required placeholder="Enter Cityname">
+                        </div>
+                    </div>
+                    <button class="button is-primary" onclick="getEvents()">Get Events</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="columns">
+                <div class="column is-half">
+                    <div id="events-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function getEvents() {
+            const city = document.getElementById('city').value;
+
+            if(!city) {
+                console.error('City should not be empty')
+                return
+            }
+
+            try {
+                const response = await fetch('/events?city=${city}')
+                const data = await response.json()
+
+                if(response.ok) {
+                    // console.log(data)
+                    displayEvents(data)
+                } else {
+                    console.error('Failed to retrieve events', data)
+                }
+            } catch(error) {
+                console.error('Error:', error)
+            }
+        }
+
+        function displayEvents(data) {
+            const container = document.getElementById('events-container')
+            container.innerHTML = ''
+
+            // console.log(data._embedded.events.length)
+
+            if(data._embedded && data._embedded.events && data._embedded.events.length === 0){
+                container.textContent = 'No events found'
+                return
+            }
+
+            data._embedded.events.forEach(event => {
+                const eventDiv = document.createElement('div')
+                eventDiv.className = 'event'
+                eventDiv.textContent = event.name
+                console.log(event.name)
+
+                container.appendChild(eventDiv)
+            });
+        }
+    </script>
+</body>
+</html>
